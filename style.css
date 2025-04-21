@@ -1,0 +1,22 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f8f9fa;
+}
+
+.card {
+    border-radius: 10px;
+}
+
+table th, table td {
+    vertical-align: middle;
+}
+
+button.btn-danger {
+    background-color: #dc3545;
+    border: none;
+}
+
+button.btn-danger:hover {
+    background-color: #c82333;
+}
+
