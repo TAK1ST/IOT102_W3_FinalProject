@@ -178,10 +178,12 @@ window.deleteUser = function (id) {
 window.showMethodModal = function (userId) {
   const fingerprintBtn = document.getElementById("fingerprint-btn");
   const keypadBtn = document.getElementById("keypad-btn");
+  const NFCBtn = document.getElementById("nfc-btn");
 
   // Attach event listeners for buttons
   fingerprintBtn.onclick = () => saveUserMode(userId, "F");
   keypadBtn.onclick = () => saveUserMode(userId, "P");
+  NFCBtn.onclick = () => saveUserMode(userId, "N");
 
   // Show the modal
   const methodModal = new bootstrap.Modal(document.getElementById("methodModal"));
