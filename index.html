@@ -13,7 +13,7 @@
 
   <body>
     <div class="container">
-      <h1 class="text-center">Quản lý người dùng</h1>
+      <h1 class="text-center">User Managerment</h1>
       <!-- filter -->
       <div class="mb-4">
         <div class="row g-2">
@@ -43,67 +43,78 @@
       </div>
 
       <!-- Form add user -->
-      <form id="crud-form" class="d-flex mb-4">
-        <input
-          id="name"
-          type="text"
-          class="form-control me-2"
-          placeholder="Username"
-          required
-        />
+      <form id="crud-form">
+        <div class="mb-3">
+          <label for="name" class="form-label">Name</label>
+          <input type="text" class="form-control" id="name" placeholder="Enter user name" required />
+        </div>
         <button type="submit" class="btn btn-primary" id="add-btn">
           <span id="add-btn-text">Add</span>
-          <span
-            id="add-btn-spinner"
-            class="spinner-border spinner-border-sm d-none"
-            role="status"
-            aria-hidden="true"
-          ></span>
+          <span id="add-btn-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
         </button>
       </form>
-      <!--<!-- Form add user -->-->
-      <!--<form id="crud-form" class="d-flex mb-4">-->
-      <!--  <input-->
-      <!--    id="name"-->
-      <!--    type="text"-->
-      <!--    class="form-control me-2"-->
-      <!--    placeholder="Username"-->
-      <!--    required-->
-      <!--  />-->
-      <!--  <input-->
-      <!--    id="id"-->
-      <!--    type="text"-->
-      <!--    class="form-control me-2"-->
-      <!--    placeholder="User ID (unique)"-->
-      <!--    required-->
-      <!--  />-->
-      <!--  <button type="submit" class="btn btn-primary" id="add-btn">-->
-      <!--    <span id="add-btn-text">Add</span>-->
-      <!--    <span-->
-      <!--      id="add-btn-spinner"-->
-      <!--      class="spinner-border spinner-border-sm d-none"-->
-      <!--      role="status"-->
-      <!--      aria-hidden="true"-->
-      <!--    ></span>-->
-      <!--  </button>-->
-      <!--</form>-->
 
       <!-- table of data user -->
-      <div class="table-responsive mb-4">
+      <div class="table-responsive">
         <table class="table table-bordered table-striped">
-          <thead class="table-dark">
+          <thead>
             <tr>
-              <th scope="col col-md-3">Name</th>
-
-              <th scope="col col-md-3">ID</th>
-
-              <th scope="col col-md-3">Fingerprint ID:</th>
-
-              <th scope="col col-md-3">Action</th>
+              <th>Name</th>
+              <th>ID</th>
+              <th>Method</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody id="data-table"></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- Modal for selecting method -->
+    <div class="modal fade" id="methodModal" tabindex="-1" aria-labelledby="methodModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="methodModalLabel">Select Method</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <button class="btn btn-primary w-100 mb-2" id="fingerprint-btn">Register with Fingerprint</button>
+            <button class="btn btn-secondary w-100" id="keypad-btn">Register with Keypad</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update User Modal -->
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="updateModalLabel">Update User</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="update-form">
+              <div class="mb-3">
+                <label for="update-name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="update-name" required />
+              </div>
+              <div class="mb-3">
+                <label for="update-pin-code" class="form-label">Pin Code</label>
+                <input type="text" class="form-control" id="update-pin-code" />
+              </div>
+              <div class="mb-3">
+                <label for="update-fingerprint-id" class="form-label">Fingerprint ID</label>
+                <input type="text" class="form-control" id="update-fingerprint-id" />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="save-updates-btn">Save Changes</button>
+          </div>
+        </div>
       </div>
     </div>
 

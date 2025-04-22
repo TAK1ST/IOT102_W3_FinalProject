@@ -67,12 +67,12 @@ form.addEventListener("submit", async (e) => {
     await set(ref(db, 'users/' + id), {
       name,
       id,
-      waiting: true,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      mode: null, 
     });
 
     form.reset();
-    alert("User added successfully! Waiting for fingerprint data...");
+    alert("User added successfully! Please add method...");
   } catch (error) {
     console.error("Error adding user:", error);
     alert("Failed to add user. Please try again.");
@@ -93,23 +93,73 @@ onValue(ref(db, 'users'), (snapshot) => {
 
   for (let key in data) {
     const user = data[key];
+    const methods = [];
+    if (user.fingerprint_id) methods.push("fingerprint");
+    if (user.keypad_id) methods.push("keypad");
+
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${user.name}</td>
       <td>${user.id}</td>
-      <td>${user.waiting ? "Waiting for fingerprint..." : `Fingerprint ID: ${user.fingerprint_id || 'N/A'}`}</td>
+      <td>${methods.length > 0 ? methods.join(", ") : ""}</td>
       <td>
         <button class="btn btn-sm btn-primary" onclick="updateUser('${user.id}')">Update</button>
         <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')">Delete</button>
+        <button class="btn btn-sm btn-success" onclick="showMethodModal('${user.id}')">Add Method</button>
       </td>
     `;
     tableBody.appendChild(row);
   }
 });
 
-// Update user function (placeholder for now)
-window.updateUser = function (id) {
-  alert("Update functionality not implemented yet for user ID: " + id);
+// Update user function
+window.updateUser = function (userId) {
+  // Fetch user data from Firebase
+  const userRef = ref(db, `users/${userId}`);
+  onValue(userRef, (snapshot) => {
+    const userData = snapshot.val();
+    if (!userData) {
+      alert("User not found!");
+      return;
+    }
+
+    // Populate modal fields with user data
+    document.getElementById("update-name").value = userData.name || "";
+    document.getElementById("update-pin-code").value = userData.pin_code || "";
+    document.getElementById("update-fingerprint-id").value = userData.fingerprint_id || "";
+
+    // Show the modal
+    const updateModal = new bootstrap.Modal(document.getElementById("updateModal"));
+    updateModal.show();
+
+    // Handle save button click
+    document.getElementById("save-updates-btn").onclick = async () => {
+      const updatedName = document.getElementById("update-name").value.trim();
+      const updatedPinCode = document.getElementById("update-pin-code").value.trim();
+      const updatedFingerprintId = document.getElementById("update-fingerprint-id").value.trim();
+
+      if (!updatedName) {
+        alert("Name cannot be empty!");
+        return;
+      }
+
+      // Update user data in Firebase
+      const updates = {
+        name: updatedName,
+        pin_code: updatedPinCode || null,
+        fingerprint_id: updatedFingerprintId || null,
+      };
+
+      try {
+        await set(userRef, { ...userData, ...updates });
+        alert("User updated successfully!");
+        updateModal.hide();
+      } catch (error) {
+        console.error("Error updating user:", error);
+        alert("Failed to update user. Please try again.");
+      }
+    };
+  }, { onlyOnce: true });
 };
 
 // Delete user function
@@ -123,4 +173,49 @@ window.deleteUser = function (id) {
       });
   }
 };
+
+// Function to show the method selection modal
+window.showMethodModal = function (userId) {
+  const fingerprintBtn = document.getElementById("fingerprint-btn");
+  const keypadBtn = document.getElementById("keypad-btn");
+
+  // Attach event listeners for buttons
+  fingerprintBtn.onclick = () => saveUserMode(userId, "F");
+  keypadBtn.onclick = () => saveUserMode(userId, "P");
+
+  // Show the modal
+  const methodModal = new bootstrap.Modal(document.getElementById("methodModal"));
+  methodModal.show();
+};
+
+// Function to save the selected mode to Firebase
+async function saveUserMode(userId, mode) {
+  try {
+    // Fetch user data from Firebase
+    const userRef = ref(db, `users/${userId}`);
+    const snapshot = await new Promise((resolve) => {
+      onValue(userRef, (snap) => resolve(snap), { onlyOnce: true });
+    });
+
+    const userData = snapshot.val();
+    if (!userData) {
+      alert("User not found!");
+      return;
+    }
+
+    // Update the user data with the selected mode
+    const updates = {
+      ...userData,
+      mode: mode, // Add or update the mode field
+    };
+
+    // Save the updated data back to Firebase
+    await set(userRef, updates);
+
+    alert(`User mode successfully updated to ${mode}!`);
+  } catch (error) {
+    console.error(`Error updating user mode to ${mode}:`, error);
+    alert(`Failed to update user mode. Please try again.`);
+  }
+}
 
