@@ -96,6 +96,7 @@ onValue(ref(db, 'users'), (snapshot) => {
     const methods = [];
     if (user.fingerprint_id) methods.push("fingerprint");
     if (user.keypad_id) methods.push("keypad");
+    if (user.rfid_id) methods.push("rfid");
 
     const row = document.createElement("tr");
     row.innerHTML = `
@@ -127,6 +128,7 @@ window.updateUser = function (userId) {
     document.getElementById("update-name").value = userData.name || "";
     document.getElementById("update-pin-code").value = userData.pin_code || "";
     document.getElementById("update-fingerprint-id").value = userData.fingerprint_id || "";
+    document.getElementById("update-rfid-id").value = userData.rfid_id || "";
 
     // Show the modal
     const updateModal = new bootstrap.Modal(document.getElementById("updateModal"));
@@ -137,6 +139,7 @@ window.updateUser = function (userId) {
       const updatedName = document.getElementById("update-name").value.trim();
       const updatedPinCode = document.getElementById("update-pin-code").value.trim();
       const updatedFingerprintId = document.getElementById("update-fingerprint-id").value.trim();
+      const updatedRFID = document.getElementById("update-rfid-id").value.trim();
 
       if (!updatedName) {
         alert("Name cannot be empty!");
@@ -148,6 +151,7 @@ window.updateUser = function (userId) {
         name: updatedName,
         pin_code: updatedPinCode || null,
         fingerprint_id: updatedFingerprintId || null,
+        rfid_id: updatedRFID || null,
       };
 
       try {
@@ -178,7 +182,7 @@ window.deleteUser = function (id) {
 window.showMethodModal = function (userId) {
   const fingerprintBtn = document.getElementById("fingerprint-btn");
   const keypadBtn = document.getElementById("keypad-btn");
-  const NFCBtn = document.getElementById("nfc-btn");
+  const NFCBtn = document.getElementById("rfid-btn");
 
   // Attach event listeners for buttons
   fingerprintBtn.onclick = () => saveUserMode(userId, "F");
