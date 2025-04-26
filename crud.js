@@ -21,6 +21,7 @@ function generateRandomNumber() {
   return String(num).padStart(7, '0'); // Ensure 7 digits with leading zeros
 }
 
+//create a unique ID
 // Function to generate a unique ID in the format G3_XXXXXXX
 async function generateUniqueId() {
   let isUnique = false;
@@ -42,6 +43,7 @@ async function generateUniqueId() {
 
   return newId;
 }
+
 
 // Add new user
 form.addEventListener("submit", async (e) => {
@@ -66,9 +68,8 @@ form.addEventListener("submit", async (e) => {
     // Add user to Firebase
     await set(ref(db, 'users/' + id), {
       name,
-      id,
       created_at: new Date().toISOString(),
-      mode: null, 
+      mode: "Register", 
     });
 
     form.reset();
@@ -79,7 +80,7 @@ form.addEventListener("submit", async (e) => {
   } finally {
     // Reset button state
     addBtn.disabled = false;
-    addBtnText.textContent = "Add";
+    addBtnText.textContent = "Register";
     addBtnSpinner.classList.add("d-none");
   }
 });
@@ -93,6 +94,7 @@ onValue(ref(db, 'users'), (snapshot) => {
 
   for (let key in data) {
     const user = data[key];
+    const userId = key; // Store the unique id
     const methods = [];
     if (user.fingerprint_id) methods.push("fingerprint");
     if (user.keypad_id) methods.push("keypad");
@@ -101,12 +103,10 @@ onValue(ref(db, 'users'), (snapshot) => {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${user.name}</td>
-      <td>${user.id}</td>
-      <td>${methods.length > 0 ? methods.join(", ") : ""}</td>
-      <td>
-        <button class="btn btn-sm btn-primary" onclick="updateUser('${user.id}')">Update</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.id}')">Delete</button>
-        <button class="btn btn-sm btn-success" onclick="showMethodModal('${user.id}')">Add Method</button>
+      <td>${userId}</td>
+      <td class="text-center">
+        <button class="btn btn-sm btn-primary" onclick="updateUser('${userId}')">Update</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteUser('${userId}')">Delete</button>
       </td>
     `;
     tableBody.appendChild(row);
@@ -127,8 +127,8 @@ window.updateUser = function (userId) {
     // Populate modal fields with user data
     document.getElementById("update-name").value = userData.name || "";
     document.getElementById("update-pin-code").value = userData.pin_code || "";
-    document.getElementById("update-fingerprint-id").value = userData.fingerprint_id || "";
-    document.getElementById("update-rfid-id").value = userData.rfid_id || "";
+    //document.getElementById("update-fingerprint-id").value = userData.fingerprint_id || "";
+    //document.getElementById("update-rfid-id").value = userData.rfid_id || "";
 
     // Show the modal
     const updateModal = new bootstrap.Modal(document.getElementById("updateModal"));
@@ -138,22 +138,26 @@ window.updateUser = function (userId) {
     document.getElementById("save-updates-btn").onclick = async () => {
       const updatedName = document.getElementById("update-name").value.trim();
       const updatedPinCode = document.getElementById("update-pin-code").value.trim();
-      const updatedFingerprintId = document.getElementById("update-fingerprint-id").value.trim();
-      const updatedRFID = document.getElementById("update-rfid-id").value.trim();
+      //const updatedFingerprintId = document.getElementById("update-fingerprint-id").value.trim();
+      //const updatedRFID = document.getElementById("update-rfid-id").value.trim();
 
       if (!updatedName) {
         alert("Name cannot be empty!");
         return;
       }
+      if (updatedPinCode && !/^\d{4}$/.test(updatedPinCode)) {
+        alert("PIN code must 4-digits (0-9)");
+        return;
+  }
 
       // Update user data in Firebase
       const updates = {
         name: updatedName,
         pin_code: updatedPinCode || null,
-        fingerprint_id: updatedFingerprintId || null,
-        rfid_id: updatedRFID || null,
+        //fingerprint_id: updatedFingerprintId || null,
+        //rfid_id: updatedRFID || null,
       };
-
+         
       try {
         await set(userRef, { ...userData, ...updates });
         alert("User updated successfully!");
@@ -179,49 +183,49 @@ window.deleteUser = function (id) {
 };
 
 // Function to show the method selection modal
-window.showMethodModal = function (userId) {
-  const fingerprintBtn = document.getElementById("fingerprint-btn");
-  const keypadBtn = document.getElementById("keypad-btn");
-  const NFCBtn = document.getElementById("rfid-btn");
-
-  // Attach event listeners for buttons
-  fingerprintBtn.onclick = () => saveUserMode(userId, "F");
-  keypadBtn.onclick = () => saveUserMode(userId, "P");
-  NFCBtn.onclick = () => saveUserMode(userId, "N");
-
-  // Show the modal
-  const methodModal = new bootstrap.Modal(document.getElementById("methodModal"));
-  methodModal.show();
-};
+//window.showMethodModal = function (userId) {
+//  const fingerprintBtn = document.getElementById("fingerprint-btn");
+//  const keypadBtn = document.getElementById("keypad-btn");
+//  const NFCBtn = document.getElementById("rfid-btn");
+//
+//   //Attach event listeners for buttons
+//  fingerprintBtn.onclick = () => saveUserMode(userId, "F");
+//  keypadBtn.onclick = () => saveUserMode(userId, "P");
+//  NFCBtn.onclick = () => saveUserMode(userId, "N");
+//
+//  // Show the modal
+//  const methodModal = new bootstrap.Modal(document.getElementById("methodModal"));
+//  methodModal.show();
+//};
 
 // Function to save the selected mode to Firebase
-async function saveUserMode(userId, mode) {
-  try {
-    // Fetch user data from Firebase
-    const userRef = ref(db, `users/${userId}`);
-    const snapshot = await new Promise((resolve) => {
-      onValue(userRef, (snap) => resolve(snap), { onlyOnce: true });
-    });
-
-    const userData = snapshot.val();
-    if (!userData) {
-      alert("User not found!");
-      return;
-    }
-
-    // Update the user data with the selected mode
-    const updates = {
-      ...userData,
-      mode: mode, // Add or update the mode field
-    };
-
-    // Save the updated data back to Firebase
-    await set(userRef, updates);
-
-    alert(`User mode successfully updated to ${mode}!`);
-  } catch (error) {
-    console.error(`Error updating user mode to ${mode}:`, error);
-    alert(`Failed to update user mode. Please try again.`);
-  }
-}
+//async function saveUserMode(userId, mode) {
+//  try {
+//    // Fetch user data from Firebase
+//    const userRef = ref(db, `users/${userId}`);
+//    const snapshot = await new Promise((resolve) => {
+//      onValue(userRef, (snap) => resolve(snap), { onlyOnce: true });
+//    });
+//
+//    const userData = snapshot.val();
+//    if (!userData) {
+//      alert("User not found!");
+//      return;
+//    }
+//
+//    // Update the user data with the selected mode
+//    const updates = {
+//      ...userData,
+//      mode: mode, // Add or update the mode field
+//    };
+//
+//    // Save the updated data back to Firebase
+//    await set(userRef, updates);
+//
+//    alert(`User mode successfully updated to ${mode}!`);
+//  } catch (error) {
+//    console.error(`Error updating user mode to ${mode}:`, error);
+//    alert(`Failed to update user mode. Please try again.`);
+//  }
+//}
 

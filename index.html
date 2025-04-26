@@ -15,110 +15,191 @@
     <div class="container">
       <h1 class="text-center">User Managerment</h1>
       <!-- filter -->
-      <div class="mb-4">
-        <div class="row g-2">
-          <div class="col-md-3">
-            <input
-              type="text"
-              id="filter-name"
-              class="form-control"
-              placeholder="Filter by name"
-            />
-          </div>
-          <div class="col-md-3">
-            <input
-              type="text"
-              id="filter-id"
-              class="form-control"
-              placeholder="Filter by ID"
-            />
-          </div>
-          <div class="col-md-3">
-            <input type="date" id="filter-date-start" class="form-control" />
-          </div>
-          <div class="col-md-3">
-            <input type="date" id="filter-date-end" class="form-control" />
-          </div>
+      <div class="row g-2">
+        <div class="col-md-3">
+          <input
+            type="text"
+            id="filter-name"
+            class="form-control"
+            placeholder="Filter by name"
+          />
+        </div>
+        <div class="col-md-2">
+          <input
+            type="text"
+            id="filter-id"
+            class="form-control"
+            placeholder="Filter by ID"
+          />
+        </div>
+        <div class="col-md-3">
+          <input type="date" id="filter-date-start" class="form-control" />
+        </div>
+        <div class="col-md-3">
+          <input type="date" id="filter-date-end" class="form-control" />
+        </div>
+        <div class="col-md-1">
+          <button id="filter-btn" class="btn btn-primary">Filter</button>
         </div>
       </div>
 
       <!-- Form add user -->
-      <form id="crud-form">
-        <div class="mb-3">
-          <label for="name" class="form-label">Name</label>
-          <input type="text" class="form-control" id="name" placeholder="Enter user name" required />
-        </div>
-        <button type="submit" class="btn btn-primary" id="add-btn">
-          <span id="add-btn-text">Add</span>
-          <span id="add-btn-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-        </button>
-      </form>
+      <div class="row">
+        <form id="crud-form">
+          <div class="col-md-8">
+            <label for="name" class="form-label" style="font-size: 1.5em"
+              >Name</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              placeholder="Enter user name"
+              required
+            />
+          </div>
+          <div class="col-md-4">
+            <button type="submit" class="btn btn-primary" id="add-btn">
+              <span id="add-btn-text">Register</span>
+              <span
+                id="add-btn-spinner"
+                class="spinner-border spinner-border-sm d-none"
+                role="status"
+                aria-hidden="true"
+              ></span>
+            </button>
+          </div>
+        </form>
+      </div>
 
       <!-- table of data user -->
-      <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>ID</th>
-              <th>Method</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="data-table"></tbody>
-        </table>
+      <div class="row">
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th class="col-5">Name</th>
+                <th class="col-4">ID</th>
+                <th class="col-3">Action</th>
+              </tr>
+            </thead>
+            <tbody id="data-table"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
     <!-- Modal for selecting method -->
-    <div class="modal fade" id="methodModal" tabindex="-1" aria-labelledby="methodModalLabel" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="methodModal"
+      tabindex="-1"
+      aria-labelledby="methodModalLabel"
+      aria-hidden="true"
+    >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="methodModalLabel">Select Method</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
           <div class="modal-body">
-            <button class="btn btn-primary w-100 mb-2" id="fingerprint-btn">Register with Fingerprint</button>
-            <button class="btn btn-secondary w-100 mb-2" id="keypad-btn">Register with Keypad</button>
-            <button class="btn btn-info w-100" id="rfid-btn">Register with RFID</button>
+            <button class="btn btn-primary w-100 mb-2" id="fingerprint-btn">
+              Register with Fingerprint
+            </button>
+            <button class="btn btn-secondary w-100 mb-2" id="keypad-btn">
+              Register with Keypad
+            </button>
+            <button class="btn btn-info w-100" id="rfid-btn">
+              Register with RFID
+            </button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Update User Modal -->
-    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+    <div
+      class="modal fade"
+      id="updateModal"
+      tabindex="-1"
+      aria-labelledby="updateModalLabel"
+      aria-hidden="true"
+    >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="updateModalLabel">Update User</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
+
           <div class="modal-body">
             <form id="update-form">
               <div class="mb-3">
                 <label for="update-name" class="form-label">Name</label>
-                <input type="text" class="form-control" id="update-name" required />
-              </div>
-              <div class="mb-3">
-                <label for="update-pin-code" class="form-label">Pin Code</label>
-                <input type="text" class="form-control" id="update-pin-code" />
-              </div>
-              <div class="mb-3">
-                <label for="update-fingerprint-id" class="form-label">Fingerprint ID</label>
-                <input type="text" class="form-control" id="update-fingerprint-id" />
-              </div>
-              <div class="mb-3">
-                <label for="update-rfid" class="form-label">RFID</label>
-                <input type="text" class="form-control" id="update-rfid-id" required />
+                <input
+                  type="text"
+                  class="form-control"
+                  id="update-name"
+                  required
+                />
               </div>
 
+              <div class="mb-3">
+                <label for="update-pin-code" class="form-label">Pin Code</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="update-pin-code"
+                  maxlength="4"
+                  inputmode="numeric"
+                  placeholder="4-digit PIN"
+                  pattern="\d{4}"
+                />
+              </div>
+
+              <!--<div class="mb-3">-->
+              <!--  <label for="update-fingerprint-id" class="form-label"-->
+              <!--    >Fingerprint ID</label-->
+              <!--  >-->
+              <!--  <input-->
+              <!--    type="text"-->
+              <!--    class="form-control"-->
+              <!--    id="update-fingerprint-id"-->
+              <!--  />-->
+              <!--</div>-->
+              <!--<div class="mb-3">-->
+              <!--  <label for="update-rfid" class="form-label">RFID</label>-->
+              <!--  <input-->
+              <!--    type="text"-->
+              <!--    class="form-control"-->
+              <!--    id="update-rfid-id"-->
+              <!--    required-->
+              <!--  />-->
+              <!--</div>-->
             </form>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" id="save-updates-btn">Save Changes</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-primary" id="save-updates-btn">
+              Save Changes
+            </button>
           </div>
         </div>
       </div>
