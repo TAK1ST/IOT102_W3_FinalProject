@@ -15,6 +15,7 @@ const addBtn = document.getElementById("add-btn");
 const addBtnText = document.getElementById("add-btn-text");
 const addBtnSpinner = document.getElementById("add-btn-spinner");
 
+let allUsers = [];
 // Function to generate a random 7-digit number with leading zeros
 function generateRandomNumber() {
   const num = Math.floor(Math.random() * 10000000); // 0 to 9999999
@@ -89,16 +90,19 @@ form.addEventListener("submit", async (e) => {
 onValue(ref(db, 'users'), (snapshot) => {
   tableBody.innerHTML = '';
   const data = snapshot.val();
+  allUsers = []; // reset mảng mỗi lần load lại
 
   if (!data) return;
 
   for (let key in data) {
     const user = data[key];
-    const userId = key; // Store the unique id
-    const methods = [];
-    if (user.fingerprint_id) methods.push("fingerprint");
-    if (user.keypad_id) methods.push("keypad");
-    if (user.rfid_id) methods.push("rfid");
+    const userId = key;
+    
+    allUsers.push({
+      id: userId,
+      name: user.name,
+      created_at: user.created_at
+    });
 
     const row = document.createElement("tr");
     row.innerHTML = `
@@ -112,6 +116,94 @@ onValue(ref(db, 'users'), (snapshot) => {
     tableBody.appendChild(row);
   }
 });
+
+
+// Filter 
+// Event listener for the filter button
+document.getElementById("filter-btn").addEventListener("click", function() {
+  // Get filter values from the input fields
+  const nameFilter = getFilterValue("filter-name");
+  const idFilter = getFilterValue("filter-id");
+  const startDateFilter = getFilterValue("filter-date-start");
+  const endDateFilter = getFilterValue("filter-date-end");
+
+  // Convert date values to Date objects if provided
+  const startDate = convertToDate(startDateFilter);
+  const endDate = convertToDate(endDateFilter);
+
+  // Filter users based on the provided filters
+  const filteredUsers = filterUsers(nameFilter, idFilter, startDate, endDate);
+
+  // Display the filtered users in the table
+  displayUsers(filteredUsers);
+
+  // If no users match the filter criteria, display a "No results" message
+  if (filteredUsers.length === 0) {
+    showNoResultsMessage();
+  }
+});
+
+// Function to get the value of a filter input and convert it to lowercase
+function getFilterValue(elementId) {
+  return document.getElementById(elementId).value.trim().toLowerCase();
+}
+
+// Function to convert a date string to a Date object
+// Returns null if the date string is empty
+function convertToDate(dateString) {
+  return dateString ? new Date(dateString) : null;
+}
+
+// Function to filter the users array based on the provided filters
+function filterUsers(nameFilter, idFilter, startDate, endDate) {
+  return allUsers.filter(user => {
+    let matches = true;
+
+    if (nameFilter && !user.name.toLowerCase().includes(nameFilter)) {
+      matches = false;
+    }
+
+    if (idFilter && !user.id.toLowerCase().includes(idFilter)) {
+      matches = false;
+    }
+
+    const userDate = new Date(user.created_at);
+    if (startDate && userDate < startDate) {
+      matches = false;
+    }
+    if (endDate && userDate > endDate) {
+      matches = false;
+    }
+
+    return matches;
+  });
+}
+
+
+// Function to display the filtered users in the table
+function displayUsers(users) {
+  const tableBody = document.getElementById("data-table");
+  tableBody.innerHTML = ''; // Clear the existing table content before adding new data
+
+  // Create a row for each filtered user and append it to the table
+  users.forEach(user => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${user.name}</td>
+      <td>${user.id}</td>
+      <td>${user.created_at}</td>
+    `;
+    tableBody.appendChild(row);
+  });
+}
+
+// Function to display a "No results found" message when no users match the filters
+function showNoResultsMessage() {
+  const tableBody = document.getElementById("data-table");
+  const row = document.createElement("tr");
+  row.innerHTML = `<td colspan="3" class="text-center alert alert-warning">No results found based on your filters.</td>`;
+  tableBody.appendChild(row);
+}
 
 // Update user function
 window.updateUser = function (userId) {
@@ -181,51 +273,4 @@ window.deleteUser = function (id) {
       });
   }
 };
-
-// Function to show the method selection modal
-//window.showMethodModal = function (userId) {
-//  const fingerprintBtn = document.getElementById("fingerprint-btn");
-//  const keypadBtn = document.getElementById("keypad-btn");
-//  const NFCBtn = document.getElementById("rfid-btn");
-//
-//   //Attach event listeners for buttons
-//  fingerprintBtn.onclick = () => saveUserMode(userId, "F");
-//  keypadBtn.onclick = () => saveUserMode(userId, "P");
-//  NFCBtn.onclick = () => saveUserMode(userId, "N");
-//
-//  // Show the modal
-//  const methodModal = new bootstrap.Modal(document.getElementById("methodModal"));
-//  methodModal.show();
-//};
-
-// Function to save the selected mode to Firebase
-//async function saveUserMode(userId, mode) {
-//  try {
-//    // Fetch user data from Firebase
-//    const userRef = ref(db, `users/${userId}`);
-//    const snapshot = await new Promise((resolve) => {
-//      onValue(userRef, (snap) => resolve(snap), { onlyOnce: true });
-//    });
-//
-//    const userData = snapshot.val();
-//    if (!userData) {
-//      alert("User not found!");
-//      return;
-//    }
-//
-//    // Update the user data with the selected mode
-//    const updates = {
-//      ...userData,
-//      mode: mode, // Add or update the mode field
-//    };
-//
-//    // Save the updated data back to Firebase
-//    await set(userRef, updates);
-//
-//    alert(`User mode successfully updated to ${mode}!`);
-//  } catch (error) {
-//    console.error(`Error updating user mode to ${mode}:`, error);
-//    alert(`Failed to update user mode. Please try again.`);
-//  }
-//}
 
